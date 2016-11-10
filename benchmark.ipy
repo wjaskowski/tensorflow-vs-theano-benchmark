@@ -10,7 +10,7 @@ def to_md(df, fn):
     df2.to_csv(fn, sep="|", index=False)
 
 results = pd.DataFrame(columns=['device', 'input_shape', 'arch', 'th_fwd_time', 'tf_fwd_time', 'th_bprop_time', 'tf_bprop_time', 'tf/th_fwd_time', 'tf/th_bprop_time'])
-configs=["40 30 8 8 128", "40 30 16 16 128", "40 30 32 16 128", "40 30 64 32 512", "128 128 64 32 128", "128 128 64 32 128", "128 128 32 32 32 128",
+configs=["40 30 8 8 128", "40 30 16 16 128", "40 30 32 16 128", "40 30 64 32 512", "128 128 64 32 128", "128 128 32 32 32 128",
     "128 128 32 32 32 32 128", "256 256 32 32 32 128", "256 256 32 32 32 32 128"]
 
 for config in tqdm(configs):
