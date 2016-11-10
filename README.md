@@ -11,7 +11,7 @@ ipython benchmark.ipy
 - Ubuntu 16.04
 - Python 3.5
 - Theano 0.8.2, Lasagne 0.2dev
-- TensorFlow 0.11
+- TensorFlow 0.11.0rc2
 - OpenBlas
 - CUDA 8.0, CuDNN 5.1
 
