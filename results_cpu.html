@@ -1,0 +1,83 @@
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>device</th>
+      <th>input_shape</th>
+      <th>arch</th>
+      <th>th_fwd_time</th>
+      <th>tf_fwd_time</th>
+      <th>th_bprop_time</th>
+      <th>tf_bprop_time</th>
+      <th>tf/th_fwd_time</th>
+      <th>tf/th_bprop_time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>cpu</td>
+      <td>40x30</td>
+      <td>[8,8], 128</td>
+      <td>0.000949</td>
+      <td>0.001875</td>
+      <td>0.003039</td>
+      <td>0.004152</td>
+      <td>1.975764</td>
+      <td>1.366239</td>
+    </tr>
+    <tr>
+      <td>cpu</td>
+      <td>40x30</td>
+      <td>[16,16], 128</td>
+      <td>0.001768</td>
+      <td>0.000867</td>
+      <td>0.005460</td>
+      <td>0.002536</td>
+      <td>0.490385</td>
+      <td>0.464469</td>
+    </tr>
+    <tr>
+      <td>cpu</td>
+      <td>40x30</td>
+      <td>[32,16], 128</td>
+      <td>0.003060</td>
+      <td>0.000946</td>
+      <td>0.009645</td>
+      <td>0.004337</td>
+      <td>0.309150</td>
+      <td>0.449663</td>
+    </tr>
+    <tr>
+      <td>cpu</td>
+      <td>40x30</td>
+      <td>[64,32], 512</td>
+      <td>0.007011</td>
+      <td>0.001584</td>
+      <td>0.021999</td>
+      <td>0.005402</td>
+      <td>0.225931</td>
+      <td>0.245557</td>
+    </tr>
+    <tr>
+      <td>cpu</td>
+      <td>128x128</td>
+      <td>[64,32], 128</td>
+      <td>0.054292</td>
+      <td>0.015037</td>
+      <td>0.185496</td>
+      <td>0.050850</td>
+      <td>0.276965</td>
+      <td>0.274130</td>
+    </tr>
+    <tr>
+      <td>cpu</td>
+      <td>128x128</td>
+      <td>[64,64], 128</td>
+      <td>0.045763</td>
+      <td>0.018699</td>
+      <td>0.171529</td>
+      <td>0.061975</td>
+      <td>0.408605</td>
+      <td>0.361309</td>
+    </tr>
+  </tbody>
+</table>
