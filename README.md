@@ -2,11 +2,11 @@
 
 ## Runnning
 ```
-ipython benchmark.ipydddd
-```dddd
-asddddd
+ipython benchmark.ipy
+```
+
 ## Experiment
-dddd
+
 ### Software
 - Ubuntu 16.04
 - Python 3.5
@@ -35,4 +35,5 @@ dddd
 
 ## Results
 See: [GPU](results_gpu.csv), [CPU](results_cpu.csv).
+
 Note: The last two columns show *how many times* Theano is faster than Tensorflow.
