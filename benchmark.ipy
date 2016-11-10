@@ -1,0 +1,44 @@
+#!/usr/bin/env ipython
+
+import pandas as pd
+from tqdm import tqdm
+
+def to_md(df, fn):
+    cols = df.columns
+    df2 = pd.DataFrame([['---',]*len(cols)], columns=cols)
+    df2 = pd.concat([df2, df])
+    df2.to_csv(fn, sep="|", index=False)
+
+results = pd.DataFrame(columns=['device', 'input_shape', 'arch', 'th_fwd_time', 'tf_fwd_time', 'th_bprop_time', 'tf_bprop_time', 'tf/th_fwd_time', 'tf/th_bprop_time'])
+configs=["40 30 8 8 128", "40 30 16 16 128", "40 30 32 16 128", "40 30 64 32 512", "128 128 64 32 128", "128 128 64 32 128", "128 128 32 32 32 128",
+    "128 128 32 32 32 32 128", "256 256 32 32 32 128", "256 256 32 32 32 32 128"]
+
+for config in tqdm(configs):
+    for device in tqdm(['gpu', 'cpu']):
+        try:
+            res = !./benchmark.py th {device} {config}
+            th_fwd, th_bprop = [float(x) for x in res[-1].split()]
+            res = !./benchmark.py tf {device} {config}
+            tf_fwd, tf_bprop = [float(x) for x in res[-1].split()]
+        except:
+            print(res)
+            raise
+        
+        sconfig = config.split()
+        results = results.append( {
+            'device': device,
+            'input_shape': '%sx%s' % (sconfig[0], sconfig[1]),
+            'arch': "[" + ",".join(sconfig[2:-1]) + "], " + sconfig[-1],
+            'th_fwd_time': th_fwd,
+            'tf_fwd_time': tf_fwd,
+            'th_bprop_time': th_bprop,
+            'tf_bprop_time': tf_bprop,
+            'tf/th_fwd_time': tf_fwd / th_fwd,
+            'tf/th_bprop_time': tf_bprop / th_bprop
+        }, ignore_index=True)
+
+        df = results[results['device']==device]
+        df.to_csv('results_%s.csv' % device)
+        df.to_html('results_%s.html' % device, index=False)
+        to_md(df, 'results_%s.md' % device)
+
