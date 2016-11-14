@@ -110,7 +110,7 @@ if __name__ == '__main__':
                     time_batch(data_x, data_y, lambda x, y: bprop_tf(x, y))))
     elif backend == 'th':
         import os
-        os.environ["THEANO_FLAGS"] = "mode=FAST_RUN,device=%s,floatX=float32,allow_gc=False,lib.cnmem=1" % device
+        os.environ["THEANO_FLAGS"] = "mode=FAST_RUN,device=%s,floatX=float32,allow_gc=False,lib.cnmem=0.6" % device
         import theano as th
 
         data_x = np.reshape(data_x, [data_points, 1, image_shape[0], image_shape[1]])
