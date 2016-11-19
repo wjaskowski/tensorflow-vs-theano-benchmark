@@ -38,13 +38,18 @@ def create_th(image_shape, output_dim, layers_conf):
 def create_tf(image_shape, output_dim, layers_conf):
     from tensorflow.contrib import layers
 
-    x = tf.placeholder(tf.float32, shape=[None, image_shape[0], image_shape[1], 1], name="input")
+    x = tf.placeholder(tf.float32, shape=[None, 1, image_shape[0], image_shape[1]], name="input")
+#    x = tf.placeholder(tf.float32, shape=[None, image_shape[0], image_shape[1], 1], name="input")
     t = tf.placeholder(tf.float32, shape=[None, output_dim], name="target")
 
     net = x
-    for num_filters in layers_conf[:-1]:
+    for i,num_filters in enumerate(layers_conf[:-1]):
         net = layers.conv2d(net, num_outputs=num_filters, kernel_size=3, stride=3, activation_fn=tf.nn.relu,
-                weights_initializer=layers.xavier_initializer_conv2d(), biases_initializer=tf.constant_initializer(0.1))
+                weights_initializer=layers.xavier_initializer_conv2d(), biases_initializer=tf.constant_initializer(0.1), data_format="NCHW")
+#        W = tf.get_variable("W%d"%i, shape=[3, 3, net.get_shape()[1], num_filters], initializer=layers.xavier_initializer_conv2d())
+#        b = tf.Variable(tf.constant(0.1, shape=[num_filters]))
+#        net = tf.nn.conv2d(net, W, [1, 1, 3, 3], padding='SAME', data_format="NCHW")
+#        net = tf.nn.relu(tf.nn.bias_add(net, b, data_format="NCHW"))
     net = layers.flatten(net)
     net = layers.fully_connected(net, num_outputs=layers_conf[-1], activation_fn=tf.nn.relu, weights_initializer=layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.1))
@@ -58,6 +63,14 @@ def create_tf(image_shape, output_dim, layers_conf):
 
     def fwd_pass(x_batch):
         return y.eval({x: x_batch})
+        import timeline
+
+        run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+        run_metadata = tf.RunMetadata()
+        sess.run([y], feed_dict={x: x_batch}, options=run_options, run_metadata=run_metadata)
+        tl = timeline.Timeline(run_metadata.step_stats)
+        trace_file = tf.gfile.Open(name='timeline', mode='w')
+        trace_file.write(tl.generate_chrome_trace_format(show_memory=True))
 
     return fwd_pass, backprop
 
@@ -97,6 +110,7 @@ if __name__ == '__main__':
     data_y = np.random.rand(data_points, output_dim).astype(dtype=np.float32)
 
     if backend == 'tf':
+        data_x = np.reshape(data_x, [data_points, 1, image_shape[0], image_shape[1]])
         import tensorflow as tf
         if device == 'gpu':
             sess = tf.Session()
@@ -107,13 +121,15 @@ if __name__ == '__main__':
             fwd_tf, bprop_tf = create_tf(image_shape, output_dim, layers)
             tf.initialize_all_variables().run()
             print("%.6f %.6f" % (time_batch(data_x, data_y, lambda x, y: fwd_tf(x)), 
-                    time_batch(data_x, data_y, lambda x, y: bprop_tf(x, y))))
+            time_batch(data_x, data_y, lambda x, y: bprop_tf(x, y))))
     elif backend == 'th':
         import os
         os.environ["THEANO_FLAGS"] = "mode=FAST_RUN,device=%s,floatX=float32,allow_gc=False,lib.cnmem=0.6" % device
         import theano as th
 
         data_x = np.reshape(data_x, [data_points, 1, image_shape[0], image_shape[1]])
+        comp_time = time()
         fwd_th, bprop_th = create_th(image_shape, output_dim, layers)
+        print('compilation time: %.1f' % (time() - comp_time))
         print("%.6f %.6f" % (time_batch(data_x, data_y, lambda x, y: fwd_th(x)), 
                 time_batch(data_x, data_y, lambda x, y: bprop_th(x, y))))
