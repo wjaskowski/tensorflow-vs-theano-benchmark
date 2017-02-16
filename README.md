@@ -8,7 +8,7 @@ ipython benchmark.ipy
 ## Experiment
 
 ### Findings
-- GPU: For small architectures TensorFlow is 5 times slower than Theano
+- GPU: For small architectures and input images TensorFlow is up to 5 times slower than Theano
 - CPU: TensorFlow is usually much faster than Theano (up to 4.8 times)
 
 ## Results
@@ -20,7 +20,7 @@ Note: The last two columns show *how many times* Theano is faster than Tensorflo
 - Ubuntu 16.04
 - Python 3.5
 - Theano 0.8.2, Lasagne 0.2dev
-- TensorFlow 0.12.1
+- TensorFlow 1.0
 - OpenBlas
 - CUDA 8.0, CuDNN 5.1
 
