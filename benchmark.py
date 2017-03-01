@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
+import re
 from time import time
 
 learning_rate = 0.001
@@ -16,10 +17,10 @@ def create_th(image_shape, output_dim, layers_conf):
     t = th.tensor.matrix("target")
 
     net = InputLayer(shape=[None, 1, image_shape[0], image_shape[1]], input_var=x)
-    for num_filters in layers_conf[:-1]:
-        net = Conv2DLayer(net, num_filters=num_filters, filter_size=[3, 3],
+    for num_filters,kernel_size,stride in layers_conf[:-1]:
+        net = Conv2DLayer(net, num_filters=num_filters, filter_size=[kernel_size, kernel_size],
                         nonlinearity=rectify, W=GlorotUniform(),
-                        b=Constant(.1), stride=3)
+                        b=Constant(.1), stride=stride)
     net = DenseLayer(net, num_units=layers_conf[-1], nonlinearity=rectify, W=GlorotUniform(),
                      b=Constant(.1))
     net = DenseLayer(net, num_units=output_dim, nonlinearity=None)
@@ -43,13 +44,10 @@ def create_tf(image_shape, output_dim, layers_conf):
     t = tf.placeholder(tf.float32, shape=[None, output_dim], name="target")
 
     net = x
-    for i,num_filters in enumerate(layers_conf[:-1]):
-        net = layers.conv2d(net, num_outputs=num_filters, kernel_size=3, stride=3, activation_fn=tf.nn.relu,
+    for num_filters,kernel_size,stride in layers_conf[:-1]:
+        net = layers.conv2d(net, num_outputs=num_filters, kernel_size=kernel_size, stride=stride, activation_fn=tf.nn.relu,
                 weights_initializer=layers.xavier_initializer_conv2d(), biases_initializer=tf.constant_initializer(0.1), data_format="NCHW")
-#        W = tf.get_variable("W%d"%i, shape=[3, 3, net.get_shape()[1], num_filters], initializer=layers.xavier_initializer_conv2d())
-#        b = tf.Variable(tf.constant(0.1, shape=[num_filters]))
-#        net = tf.nn.conv2d(net, W, [1, 1, 3, 3], padding='SAME', data_format="NCHW")
-#        net = tf.nn.relu(tf.nn.bias_add(net, b, data_format="NCHW"))
+
     net = layers.flatten(net)
     net = layers.fully_connected(net, num_outputs=layers_conf[-1], activation_fn=tf.nn.relu, weights_initializer=layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.1))
@@ -99,7 +97,11 @@ if __name__ == '__main__':
     device = sys.argv[2]
     assert device in ['cpu', 'gpu']
     image_shape = [int(x) for x in sys.argv[3:5]]
-    layers = [int(x) for x in sys.argv[5:]]
+    layers = [x for x in sys.argv[5:]]
+    for i in range(len(layers[:-1])):
+        m = re.search('(\d+),k=(\d+),s=(\d+)', layers[i])
+        layers[i] = [int(m.group(j+1)) for j in range(3)]
+    layers[-1] = int(layers[-1])
 
     # Prepare random data
     np.random.seed(123)
@@ -119,7 +121,7 @@ if __name__ == '__main__':
         with sess.as_default():
             tf.set_random_seed(np.random.rand())
             fwd_tf, bprop_tf = create_tf(image_shape, output_dim, layers)
-            tf.initialize_all_variables().run()
+            tf.global_variables_initializer().run()
             print("%.6f %.6f" % (time_batch(data_x, data_y, lambda x, y: fwd_tf(x)), 
             time_batch(data_x, data_y, lambda x, y: bprop_tf(x, y))))
     elif backend == 'th':
