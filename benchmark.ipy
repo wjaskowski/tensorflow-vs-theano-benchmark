@@ -23,10 +23,10 @@ configs=[
 for config in tqdm(configs):
     for device in tqdm(['gpu']):#, 'cpu']):
         try:
-            res = !./benchmark.py th {device} {config}
-            th_fwd, th_bprop = [float(x) for x in res[-1].split()]
             res = !./benchmark.py tf {device} {config}
             tf_fwd, tf_bprop = [float(x) for x in res[-1].split()]
+            res = !./benchmark.py th {device} {config}
+            th_fwd, th_bprop = [float(x) for x in res[-1].split()]
         except:
             print(res)
             raise
