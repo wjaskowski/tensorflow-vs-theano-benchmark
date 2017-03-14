@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
     # Prepare random data
     np.random.seed(123)
-    batchsize = 64
+    batchsize = 128
     data_points = 1024
     output_dim = 4
     data_x = np.random.rand(data_points, *image_shape, 1).astype(dtype=np.float32)
@@ -115,7 +115,9 @@ if __name__ == '__main__':
         data_x = np.reshape(data_x, [data_points, 1, image_shape[0], image_shape[1]])
         import tensorflow as tf
         if device == 'gpu':
-            sess = tf.Session()
+            config = tf.ConfigProto()
+            config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+            sess = tf.Session(config=config)
         else:
             sess = tf.Session(config=tf.ConfigProto(device_count = {'GPU': 0}))
         with sess.as_default():
