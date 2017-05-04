@@ -19,8 +19,8 @@ Note: The last two columns show *how many times* Theano is faster than Tensorflo
 ### Software
 - Ubuntu 16.04
 - Python 3.5
-- Theano 0.8.2, Lasagne 0.2dev
-- TensorFlow 1.0
+- Theano 0.9, Lasagne 0.2dev
+- TensorFlow 1.1
 - OpenBlas
 - CUDA 8.0, CuDNN 5.1
 
